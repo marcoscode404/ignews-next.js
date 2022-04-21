@@ -39,7 +39,8 @@ export default NextAuth({
             const {email} = user;
             try{
               
-              await fauna.query(        
+              await fauna.query(   
+                    // se não existe usuario ao qual ele realize um match -> ao qual o index usuario por email não existir então crie  
                 q.If(
                   q.Not(
                     q.Exists(
@@ -49,10 +50,12 @@ export default NextAuth({
                       )
                     )
                   ),
+                  // crie ele
                   q.Create(
                     q.Collection('users'),
                     {data: {email}}
                   ),
+                  // busque as informações dele
                   q.Get(
                     q.Match(
                       q.Index('user_by_email'),

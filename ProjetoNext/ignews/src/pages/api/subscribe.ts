@@ -19,6 +19,7 @@ type User = {
 
 export default async(req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === 'POST') {
+        // verifica se user está logado
         const session = await getSession({ req })
 
 
@@ -31,8 +32,10 @@ export default async(req: NextApiRequest, res: NextApiResponse) => {
            ) 
         )
 
+        // impede que o usuario seja duplicado no stripe
         let customerId = user.data.stripe_customer_id
 
+        // se não existir
         if (!customerId) {
             const stripeCustomer =  await stripe.customers.create({
                 email: session.user.email,

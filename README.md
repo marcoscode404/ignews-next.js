@@ -38,3 +38,7 @@ CMS Para Ecoomerce
 - Saleor
 
 
+
+
+## Para integrar com a Api do Prismic ##
+- yarn add @prismicio/client

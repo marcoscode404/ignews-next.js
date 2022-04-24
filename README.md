@@ -42,3 +42,12 @@ CMS Para Ecoomerce
 
 ## Para integrar com a Api do Prismic ##
 - yarn add @prismicio/client
+
+## lib para formatação das datas e dos textos de dentro da Api
+- yarn add prismic-dom
+- yarn add @types/prismic-dom -D
+
+
+
+
+

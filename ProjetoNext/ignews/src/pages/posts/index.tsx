@@ -1,11 +1,22 @@
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
-import Prismic from '@prismicio/client'
+import Prismic from '@prismicio/client';
+import { RichText } from 'prismic-dom';
 
 import { getPrismicClient } from '../../services/prismic';
 import styles from './styles.module.scss';
 
-export default function Posts() {
+type Posts = {
+    slug: string;
+    title: string;
+    excerpt: string;
+    updatedAt: string;
+}
+interface PostsProps {
+    posts: Posts[]
+}
+
+export default function Posts( { posts }: PostsProps ) {
     return(
         <>
             <Head>
@@ -14,50 +25,27 @@ export default function Posts() {
 
             <main className={styles.container}>
                 <div className={styles.posts}>
-                    <a href='#'>
-                        <time>23 de Abril de 2022</time>
-                        <strong>Mapas com React usando Leafletxxxxxxxxx</strong>
-                        <p>Vamos mostrar como adicionar Dark Mode no Blog de maneira rápida e fácil, sem depender do JavaScript, usando apenas o CSS.
+                    { posts.map(post => (
+                        <a key={post.slug} href='#'>
+                            <time>{post.updatedAt}</time>
+                            <strong>{post.title}</strong>
+                            <p>{post.excerpt}</p>
+                        </a>
+                    )) }
+                    
 
-                            Vou trazer um conceito — uma ideia — que vai além de mudar o background do fundo da tela e as cores dos textos, que é o padrão. Vamos escurecer um pouco as imagens também.
+            
 
-                            O usuário quer ler um conteúdo com tema escuro, então a imagem do conteúdo precisa se adequar e ter menos brilho.
-
-                            🖥️ Navegadores modernos
-                        </p>
-                    </a>
-
-                    <a href='#'>
-                        <time>23 de Abril de 2022</time>
-                        <strong>Mapas com React usando Leafletxxxxxxxxx</strong>
-                        <p>Vamos mostrar como adicionar Dark Mode no Blog de maneira rápida e fácil, sem depender do JavaScript, usando apenas o CSS.
-
-                            Vou trazer um conceito — uma ideia — que vai além de mudar o background do fundo da tela e as cores dos textos, que é o padrão. Vamos escurecer um pouco as imagens também.
-
-                            O usuário quer ler um conteúdo com tema escuro, então a imagem do conteúdo precisa se adequar e ter menos brilho.
-
-                            🖥️ Navegadores modernos
-                        </p>
-                    </a>
-
-                    <a href='#'>
-                        <time>23 de Abril de 2022</time>
-                        <strong>Mapas com React usando Leafletxxxxxxxxx</strong>
-                        <p>Vamos mostrar como adicionar Dark Mode no Blog de maneira rápida e fácil, sem depender do JavaScript, usando apenas o CSS.
-
-                            Vou trazer um conceito — uma ideia — que vai além de mudar o background do fundo da tela e as cores dos textos, que é o padrão. Vamos escurecer um pouco as imagens também.
-
-                            O usuário quer ler um conteúdo com tema escuro, então a imagem do conteúdo precisa se adequar e ter menos brilho.
-
-                            🖥️ Navegadores modernos
-                        </p>
-                    </a>
                 </div>
             </main>
         </>
     )
 }
 
+// chamada pra API
+// OBS: ao puxar dados de data, ou preço. Faça a alteração ao chamar a AP
+// Pois assim ela só vai ser alterada apenas 1 vez
+// não formatando no layout 
 
 export const getStaticProps: GetStaticProps = async () => {
     const prismic = getPrismicClient()
@@ -69,9 +57,22 @@ export const getStaticProps: GetStaticProps = async () => {
         pageSize: 100,
     });
 
-    console.log(JSON.stringify(response, null, 2))
+    const posts = response.results.map(post => {
+        return {
+            slug: post.uid,
+            title: RichText.asText(post.data.title),
+            excerpt: post.data.content.find(content => content.type === 'paragraph')?.text ?? '',
+            updatedAt: new Date(post.last_publication_date).toLocaleDateString('pt-BR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            })
+        };
+    })
 
     return {
-        props: {}
+        props: {
+            posts
+        }
     }
 }
